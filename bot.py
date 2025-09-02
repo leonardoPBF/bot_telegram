@@ -1,31 +1,27 @@
-from telegram.ext import Application, CommandHandler, ConversationHandler
-from handlers import commands, feedback, rating, support
-from config.settings import TOKEN
-import logging
+from telegram.ext import Application, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, filters
+from handlers import commands, feedback, rating
 
 def main():
-    # Configurar logging
-    logging.basicConfig(level=logging.INFO)
-    
-    # Crear aplicación
-    app = Application.builder().token(TOKEN).build()
-    
-    # Comandos básicos
-    app.add_handler(CommandHandler("start", commands.start))
-    app.add_handler(CommandHandler("help", commands.help_command))
-    app.add_handler(CommandHandler("about", commands.about))
-    app.add_handler(CommandHandler("stats", commands.stats))
-    
-    # Conversaciones
-    app.add_handler(feedback.get_conversation_handler())
-    app.add_handler(rating.get_conversation_handler())
-    app.add_handler(support.get_conversation_handler())
-    
-    # Callbacks
-    app.add_handler(rating.get_callback_handler())
-    
-    # Iniciar bot
-    print("🚀 Bot iniciado...")
+    app = Application.builder().token("8011967782:AAF4lZG3fOGwiEczgz0Sq2mhN-_ma5s1zxM").build()
+
+    # Comandos simples
+    app.add_handler(CommandHandler("start", commands.welcome))
+    app.add_handler(CommandHandler("nota", rating.askForNota))
+    app.add_handler(CommandHandler("humor", rating.humor))  
+    app.add_handler(CommandHandler("cancel", commands.cancel))  
+
+    # Conversación de feedback
+    feedback_handler = ConversationHandler(
+        entry_points=[CommandHandler("feedback", feedback.feedback)],
+        states={
+            feedback.STATE1: [MessageHandler(filters.TEXT & ~filters.COMMAND, feedback.inputFeedback)],
+            feedback.STATE2: [MessageHandler(filters.TEXT & ~filters.COMMAND, feedback.inputFeedback2)],
+        },
+        fallbacks=[CommandHandler("cancel", feedback.cancel)],
+    )
+    app.add_handler(feedback_handler)
+
+    print("Bot rodando...")
     app.run_polling()
 
 if __name__ == "__main__":
