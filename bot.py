@@ -8,7 +8,7 @@ def main():
     app.add_handler(CommandHandler("start", commands.welcome))
     app.add_handler(CommandHandler("nota", rating.askForNota))
     app.add_handler(CommandHandler("humor", rating.humor))  
-    app.add_handler(CommandHandler("cancel", commands.cancel))  
+    app.add_handler(CommandHandler("cancel", feedback.cancel))  
 
     # Conversación de feedback
     feedback_handler = ConversationHandler(
